@@ -1,4 +1,5 @@
 import time
+
 import pyperclip
 
 from clipboard.storage import Storage
@@ -14,7 +15,7 @@ class Watcher:
     @classmethod
     def watch(cls):
         try:
-            while(True):
+            while True:
                 current_clipboard_context = pyperclip.paste()
 
                 if current_clipboard_context != cls.__last_seen:
@@ -24,4 +25,4 @@ class Watcher:
 
                     time.sleep(0.5)
         except KeyboardInterrupt:
-            print ("\n Putting baite to sleep... 😿")
+            print("\n Putting baite to sleep... 😿")
