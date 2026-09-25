@@ -6,36 +6,51 @@ DIM=$'\033[2;38;5;245m'
 RESET=$'\033[0m'
 BOLD=$'\033[1m'
 
-{
-printf '%s' "$BOLD$TEAL"
-cat << 'WORD'
-████   ███  █████ █████ █████
-█   █ █   █   █     █   █
-█   █ █   █   █     █   █
-████  █████   █     █   ████
-█   █ █   █   █     █   █
-█   █ █   █   █     █   █
-████  █   █ █████   █   █████
-WORD
-printf '%s\n\n\n' "$RESET"
+visible() { sed 's/\x1b\[[0-9;]*m//g' <<< "$1"; }
 
-printf '%s' "$TEAL"
-printf '       ██████\n'
-printf '     ████████████\n'
-printf '   ████████████████████\n'
+lines=(
+    "${BOLD}${TEAL}████   ███  █████ █████ █████"
+    "█   █ █   █   █     █   █"
+    "█   █ █   █   █     █   █"
+    "████  █████   █     █   ████"
+    "█   █ █   █   █     █   █"
+    "█   █ █   █   █     █   █"
+    "████  █   █ █████   █   █████${RESET}"
+    ""
+    ""
+    ""
+    "${TEAL}       ██████"
+    "     ████████████"
+    "   ████████████████████"
+    "  ${TEAL}██████████████████████${TEAL}██████"
+    "  ${TEAL}██████${BLACK}██${TEAL}████████████${BLACK}██${TEAL}██████"
+    "  ████████████████████████████"
+    "   ████████████    ██████████"
+    "     ██████████  ████████"
+    "   ████    ██████   ████${RESET}"
+    ""
+    ""
+    ""
+    "${DIM}        watching your clipboard...${RESET}"
+)
 
-# body row with blue square above right eye
-printf '  '; printf '%s████████████████████%s██%s██████\n' "$TEAL" "$TEAL" "$TEAL"
+cols=$(tput cols 2>/dev/null || echo 80)
 
-# eyes row, fully solid, no gaps
-printf '  '; printf '%s██████%s██%s████████████%s██%s██████\n' "$TEAL" "$BLACK" "$TEAL" "$BLACK" "$TEAL"
+max_width=0
+for line in "${lines[@]}"; do
+    vis=$(visible "$line")
+    length=${#vis}
+    (( length > max_width )) && max_width=$length
+done
 
-printf '%s' "$TEAL"
-printf '  ████████████████████████████\n'
-printf '   ████████████    ██████████\n'
-printf '     ██████████  ████████\n'
-printf '   ████    ██████   ████\n'
-printf '%s\n\n\n' "$RESET"
-
-printf '%s        watching your clipboard...%s\n' "$DIM" "$RESET"
-}
+for line in "${lines[@]}"; do
+    if [[ -z "$(visible "$line")" ]]; then
+        printf '\n'
+        continue
+    fi
+    vis=$(visible "$line")
+    length=${#vis}
+    pad=$(( (cols - max_width) / 2 + (max_width - length) ))
+    (( pad < 0 )) && pad=0
+    printf '%*s%s\n' "$pad" "" "$line"
+done
